@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
@@ -26,10 +27,15 @@ public class StorageServiceImpl implements StorageService {
         }
 
         try {
-            UUID videoId = UUID.randomUUID();
-            Path videoDirectory = Files.createDirectory(Path.of(UPLOAD_LOCATION, videoId.toString()));
-            Path videoPath = videoDirectory.resolve(file.getOriginalFilename());
+            Path uploadsDirectory = Paths.get(UPLOAD_LOCATION);
+            if(!Files.exists(uploadsDirectory)) {
+                Files.createDirectory(uploadsDirectory);
+            }
 
+            UUID videoId = UUID.randomUUID();
+            Path videoDirectory = uploadsDirectory.resolve(videoId.toString());
+            Files.createDirectory(videoDirectory);
+            Path videoPath = videoDirectory.resolve(file.getOriginalFilename());
             InputStream inputStream = file.getInputStream();
             Files.copy(inputStream, videoPath, StandardCopyOption.REPLACE_EXISTING);
             return videoId;
